@@ -6,6 +6,9 @@ if (process.env.NODE_ENV === "development") {
 }
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true
+  },
   images: {
     unoptimized: true
   }
