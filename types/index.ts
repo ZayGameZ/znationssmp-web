@@ -269,6 +269,11 @@ export interface IngestResult {
   source: "live";
   cachedKey: string;
   syncedAt: string;
+  storage?: {
+    cache: boolean;
+    d1: boolean;
+    durable: boolean;
+  };
 }
 
 export interface ApiResponse<T> {
