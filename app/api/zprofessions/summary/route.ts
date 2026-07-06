@@ -2,7 +2,9 @@ import { withKV } from "@/lib/cache/kv";
 import { api } from "@/lib/api/response";
 import { siteData } from "@/lib/mock-data";
 
-// ZProfessions integration point: live endpoint should expose assignments, profession metadata, and economy tags.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const result = await withKV("cache:zprofessions-summary", async () => ({
     professions: siteData.professions,

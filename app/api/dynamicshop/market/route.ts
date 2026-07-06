@@ -2,7 +2,9 @@ import { withKV } from "@/lib/cache/kv";
 import { api } from "@/lib/api/response";
 import { siteData } from "@/lib/mock-data";
 
-// DynamicShop market overview endpoint. Live backend should return price history, volume, listings, and trends.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const result = await withKV("cache:market-overview", async () => ({
     priceSeries: siteData.priceSeries,

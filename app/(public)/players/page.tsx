@@ -9,6 +9,9 @@ import { siteData } from "@/lib/mock-data";
 import { currency } from "@/lib/utils";
 import type { PlayerProfile } from "@/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PlayersPage() {
   const profiles = await getPlayerProfiles();
   const online = profiles.data.filter((profile) => profile.online);
