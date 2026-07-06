@@ -7,11 +7,29 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { PublicNav } from "@/components/layout/public-nav";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
+import { withKV } from "@/lib/cache/kv";
 import { siteData } from "@/lib/mock-data";
 import { currency } from "@/lib/utils";
+import type { MapMarker, ServerSnapshot } from "@/types";
 
-export function PublicHome() {
+type BluemapSnapshot = {
+  mapUrl?: string;
+  preview?: string;
+  markers?: MapMarker[];
+};
+
+export async function PublicHome() {
   const config = getPublicConfig();
+  const [serverResult, bluemapResult] = await Promise.all([
+    withKV<ServerSnapshot>("cache:server-status", async () => siteData.server),
+    withKV<BluemapSnapshot>("cache:bluemap", async () => ({
+      mapUrl: process.env.NEXT_PUBLIC_BLUEMAP_URL ?? "",
+      preview: "/backgrounds/map-preview.jpg",
+      markers: siteData.markers
+    }))
+  ]);
+  const server = serverResult.data;
+  const markers = bluemapResult.data.markers ?? siteData.markers;
 
   return (
     <div className="min-h-screen bg-zn-black text-white">
@@ -38,20 +56,21 @@ export function PublicHome() {
             <Card className="bg-black/72">
               <CardHeader>
                 <CardTitle>Server Status</CardTitle>
-                <StatusPill online={siteData.server.online} />
+                <StatusPill online={server.online} />
               </CardHeader>
               <CardContent>
                 <p className="text-sm uppercase text-zinc-400">Players Online</p>
                 <div className="mt-2 flex items-center justify-between gap-4">
-                  <p className="text-5xl font-black">{siteData.server.playersOnline}<span className="text-zinc-500"> / {siteData.server.maxPlayers}</span></p>
+                  <p className="text-5xl font-black">{server.playersOnline}<span className="text-zinc-500"> / {server.maxPlayers}</span></p>
                   <div className="grid h-12 w-12 place-items-center rounded border border-zn-line bg-black/60 text-xs font-black text-zn-lightGold">ZN</div>
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-4 border-y border-zn-line py-4">
-                  <div><p className="text-xs uppercase text-zinc-500">TPS</p><p className="text-2xl font-black text-zn-emerald">{siteData.server.tps}</p></div>
-                  <div><p className="text-xs uppercase text-zinc-500">Ping</p><p className="text-2xl font-black text-zn-emerald">{siteData.server.pingMs}ms</p></div>
+                  <div><p className="text-xs uppercase text-zinc-500">TPS</p><p className="text-2xl font-black text-zn-emerald">{server.tps}</p></div>
+                  <div><p className="text-xs uppercase text-zinc-500">Ping</p><p className="text-2xl font-black text-zn-emerald">{server.pingMs}ms</p></div>
                 </div>
                 <p className="mt-4 text-xs uppercase text-zinc-500">Uptime</p>
-                <p className="text-2xl font-black">{siteData.server.uptime}</p>
+                <p className="text-2xl font-black">{server.uptime}</p>
+                <p className="mt-2 text-xs uppercase text-zinc-500">Source: {serverResult.source}</p>
                 <Button asChild className="mt-5 w-full"><Link href="/how-to-join">Join The Adventure</Link></Button>
               </CardContent>
             </Card>
@@ -88,11 +107,11 @@ export function PublicHome() {
             <CardHeader><CardTitle>Live Map</CardTitle><Link href="/map" className="text-xs font-black uppercase text-zn-gold">View Full Map</Link></CardHeader>
             <CardContent>
               <div className="relative h-[310px] overflow-hidden rounded border border-zn-line">
-                <Image src="/backgrounds/map-preview.jpg" alt="ZNations territory map" fill className="object-cover" />
-                {siteData.markers.map((marker) => (
+                <Image src={bluemapResult.data.preview ?? "/backgrounds/map-preview.jpg"} alt="ZNations territory map" fill className="object-cover" />
+                {markers.map((marker) => (
                   <span key={marker.id} className="absolute grid h-9 w-9 place-items-center rounded border border-black/60 bg-black/75 text-xs font-black text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>ZN</span>
                 ))}
-                {!siteData.markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/75 p-3 text-sm text-zinc-300">Waiting for Bluemap marker sync.</div> : null}
+                {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/75 p-3 text-sm text-zinc-300">Waiting for Bluemap marker sync.</div> : null}
               </div>
             </CardContent>
           </Card>
