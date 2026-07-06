@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { putKV } from "@/lib/cache/kv";
+import { hasDurableLiveStore, putKV } from "@/lib/cache/kv";
 import { withD1 } from "@/lib/db/d1";
 import type { IngestEnvelope, IngestResult } from "@/types";
 
@@ -31,8 +31,9 @@ export async function storeIngestSnapshot<T>(cacheKey: string, envelope: IngestE
     syncedAt,
     source: "live" as const
   };
-  await putKV(cacheKey, envelope.data);
-  await withD1(
+
+  const cacheStored = await putKV(cacheKey, envelope.data);
+  const d1Stored = await withD1(
     async (db) => {
       await db
         .prepare(
@@ -46,7 +47,18 @@ export async function storeIngestSnapshot<T>(cacheKey: string, envelope: IngestE
     },
     async () => false
   );
-  return { ok: true, source: "live", cachedKey: cacheKey, syncedAt };
+
+  return {
+    ok: cacheStored || d1Stored,
+    source: "live",
+    cachedKey: cacheKey,
+    syncedAt,
+    storage: {
+      cache: cacheStored,
+      d1: d1Stored,
+      durable: d1Stored || hasDurableLiveStore()
+    }
+  };
 }
 
 export async function basicIngest<T>(request: Request, cacheKey: string) {
@@ -55,7 +67,11 @@ export async function basicIngest<T>(request: Request, cacheKey: string) {
   try {
     const envelope = await readIngestEnvelope<T>(request);
     const result = await storeIngestSnapshot(cacheKey, envelope);
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "no-store"
+      }
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid ingest payload" }, { status: 400 });
   }
