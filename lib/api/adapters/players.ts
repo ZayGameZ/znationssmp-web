@@ -1,15 +1,15 @@
 import { withKV } from "@/lib/cache/kv";
-import { withD1, type D1Row } from "@/lib/db/d1";
+import { withDb, type DbRow } from "@/lib/db/database";
 import { siteData } from "@/lib/mock-data";
 import type { PlayerProfile } from "@/types";
 
-type PlayerProfileRow = D1Row & {
+type PlayerProfileRow = DbRow & {
   data_json: string;
 };
 
 export async function getPlayerProfiles() {
   return withKV<PlayerProfile[]>("cache:player-profiles", async () =>
-    withD1(
+    withDb(
       async (db) => {
         const rows = await db.prepare("SELECT data_json FROM player_profiles ORDER BY online DESC, updated_at DESC LIMIT 200").all<PlayerProfileRow>();
         return rows.results.map((row) => JSON.parse(row.data_json) as PlayerProfile);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasDurableLiveStore, putKV } from "@/lib/cache/kv";
-import { withD1 } from "@/lib/db/d1";
+import { withDb } from "@/lib/db/database";
 import type { IngestEnvelope, IngestResult } from "@/types";
 
 export function requireIngestAuth(request: Request) {
@@ -33,7 +33,7 @@ export async function storeIngestSnapshot<T>(cacheKey: string, envelope: IngestE
   };
 
   const cacheStored = await putKV(cacheKey, envelope.data);
-  const d1Stored = await withD1(
+  const databaseStored = await withDb(
     async (db) => {
       await db
         .prepare(
@@ -49,14 +49,14 @@ export async function storeIngestSnapshot<T>(cacheKey: string, envelope: IngestE
   );
 
   return {
-    ok: cacheStored || d1Stored,
+    ok: cacheStored || databaseStored,
     source: "live",
     cachedKey: cacheKey,
     syncedAt,
     storage: {
       cache: cacheStored,
-      d1: d1Stored,
-      durable: d1Stored || hasDurableLiveStore()
+      database: databaseStored,
+      durable: databaseStored || hasDurableLiveStore()
     }
   };
 }

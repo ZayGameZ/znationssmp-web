@@ -1,5 +1,4 @@
 import type { DataSource } from "@/types";
-import type { CloudflareEnv } from "@/lib/db/d1";
 
 type CacheHit<T> = { hit: true; data: T } | { hit: false };
 
@@ -50,33 +49,6 @@ function putMemory<T>(key: string, data: T, expirationTtl?: number) {
     value: JSON.stringify(data),
     expiresAt: Date.now() + (expirationTtl ? expirationTtl * 1000 : DEFAULT_MEMORY_TTL_MS)
   });
-}
-
-async function getCloudflareKV<T>(key: string): Promise<CacheHit<T>> {
-  try {
-    const mod = await import("@opennextjs/cloudflare");
-    const context = await mod.getCloudflareContext({ async: true });
-    const kv = (context.env as CloudflareEnv).ZNATIONS_CACHE;
-    const cached = kv ? await kv.get<T>(key, "json") : null;
-    if (cached) return { hit: true, data: cached };
-  } catch {
-    // Not running inside Cloudflare/OpenNext, or bindings are unavailable.
-  }
-
-  return { hit: false };
-}
-
-async function putCloudflareKV<T>(key: string, data: T, expirationTtl?: number) {
-  try {
-    const mod = await import("@opennextjs/cloudflare");
-    const context = await mod.getCloudflareContext({ async: true });
-    const kv = (context.env as CloudflareEnv).ZNATIONS_CACHE;
-    if (!kv) return false;
-    await kv.put(key, JSON.stringify(data), expirationTtl ? { expirationTtl } : undefined);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function redisConfig() {
@@ -140,9 +112,6 @@ export function hasDurableLiveStore() {
 }
 
 export async function withKV<T>(key: string, fallback: () => Promise<T>): Promise<{ data: T; source: DataSource }> {
-  const cloudflare = await getCloudflareKV<T>(key);
-  if (cloudflare.hit) return { data: cloudflare.data, source: "live" };
-
   const redis = await getRedisKV<T>(key);
   if (redis.hit) return { data: redis.data, source: "live" };
 
@@ -153,12 +122,13 @@ export async function withKV<T>(key: string, fallback: () => Promise<T>): Promis
 }
 
 export async function putKV<T>(key: string, data: T, expirationTtl?: number) {
-  const cloudflareStored = await putCloudflareKV(key, data, expirationTtl);
   const redisStored = await putRedisKV(key, data, expirationTtl);
 
   // Memory makes local dev and Vercel warm functions work immediately.
-  // For dependable production sync across Vercel invocations, add Vercel KV/Upstash Redis env vars.
+  // For dependable production sync across Vercel invocations, set the Vercel KV /
+  // Upstash Redis env vars (KV_REST_API_URL / KV_REST_API_TOKEN) so cached
+  // snapshots survive across serverless invocations.
   putMemory(key, data, expirationTtl);
 
-  return cloudflareStored || redisStored || true;
+  return redisStored || true;
 }

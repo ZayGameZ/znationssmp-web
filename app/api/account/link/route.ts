@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { withD1 } from "@/lib/db/d1";
+import { withDb } from "@/lib/db/database";
 
 const minecraftNamePattern = /^[A-Za-z0-9_]{3,16}$/;
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     expiresAt: expires.toISOString()
   };
 
-  const stored = await withD1(
+  const stored = await withDb(
     async (db) => {
       await db
         .prepare(
