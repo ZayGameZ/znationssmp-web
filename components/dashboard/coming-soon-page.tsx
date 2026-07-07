@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Construction, PlugZap } from "lucide-react";
+import { Hammer, PlugZap } from "lucide-react";
 import { PublicNav } from "@/components/layout/public-nav";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -15,24 +14,25 @@ export function ComingSoonPage({
   integration: string;
 }) {
   return (
-    <div className="min-h-screen bg-zn-black text-white">
+    <div className="min-h-screen bg-zn-black text-zn-parchment">
       <PublicNav />
-      <main className="mx-auto max-w-5xl px-4 py-10 md:px-8">
-        <section className="rounded-lg border border-zn-line bg-[radial-gradient(circle_at_top,rgba(212,175,55,.16),transparent_36%),#080808] p-6 md:p-10">
-          <Badge className="mb-5"><Construction className="mr-2 h-3.5 w-3.5" /> Coming Soon</Badge>
-          <h1 className="text-4xl font-black uppercase md:text-6xl">{title}</h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-300">{description}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild><Link href="/how-to-join">How To Join</Link></Button>
-            <Button asChild variant="outline"><Link href="/shop">Open Shop</Link></Button>
+      <main className="mx-auto max-w-4xl px-4 py-16 md:px-8">
+        <section className="overflow-hidden rounded-lg border border-zn-line bg-[radial-gradient(circle_at_top,rgba(200,162,74,.14),transparent_44%),#141109] p-8 text-center md:p-14">
+          <span className="banner-tab mx-auto"><Hammer className="h-3.5 w-3.5" /> Under Construction</span>
+          <h1 className="mt-6 font-display text-4xl tracking-wide md:text-6xl">{title}</h1>
+          <div className="crest-rule mx-auto mt-5 w-40" />
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zn-parchment/75">{description}</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild><Link href="/how-to-join">How to Join</Link></Button>
+            <Button asChild variant="outline"><Link href="/">Back to Home</Link></Button>
           </div>
         </section>
         <Card className="mt-5">
           <CardHeader><CardTitle>Not Connected Yet</CardTitle><PlugZap className="h-5 w-5 text-zn-gold" /></CardHeader>
           <CardContent>
-            <p className="text-sm leading-6 text-zinc-400">
-              This page is intentionally parked until <span className="font-bold text-zn-lightGold">{integration}</span> is connected.
-              It is not showing mock controls or fake player actions in the public release.
+            <p className="text-sm leading-6 text-zn-parchment/60">
+              This page is intentionally parked until <span className="font-medium text-zn-lightGold">{integration}</span> is connected.
+              It shows no mock controls or fake actions — when the data source is live, the real feature takes its place here.
             </p>
           </CardContent>
         </Card>

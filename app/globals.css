@@ -3,15 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #050505;
-  --foreground: #f5f5f5;
-  --muted: #a7a7a7;
-  --gold: #d4af37;
-  --deep-gold: #9f741c;
-  --surface: #141414;
-  --line: rgba(212, 175, 55, 0.22);
-  --font-display: "Arial Black", "Arial", sans-serif;
-  --font-body: "Inter", "Segoe UI", sans-serif;
+  /* Heraldic Kingdom palette — warm obsidian, brass, crimson, parchment. */
+  --background: #100f0c;
+  --foreground: #efe9db;
+  --muted: #a99f86;
+  --brass: #c8a24a;
+  --brass-bright: #e6c874;
+  --brass-deep: #8a6d28;
+  --crimson: #9b3535;
+  --crimson-bright: #c0554f;
+  --surface: #1b1913;
+  --line: rgba(200, 162, 74, 0.24);
 }
 
 * {
@@ -27,12 +29,21 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 20% 0%, rgba(212, 175, 55, 0.16), transparent 28%),
-    radial-gradient(circle at 90% 10%, rgba(34, 197, 94, 0.08), transparent 24%),
-    linear-gradient(180deg, #050505 0%, #090909 50%, #050505 100%);
+    radial-gradient(circle at 18% -4%, rgba(200, 162, 74, 0.14), transparent 30%),
+    radial-gradient(circle at 92% 4%, rgba(155, 53, 53, 0.10), transparent 26%),
+    linear-gradient(180deg, #100f0c 0%, #14120d 52%, #0d0c0a 100%);
   color: var(--foreground);
-  font-family: var(--font-body);
+  font-family: var(--font-body, "Inter", "Segoe UI", sans-serif);
   letter-spacing: 0;
+}
+
+/* Headings render in the engraved display face across the whole site.
+   Tailwind weight utilities (font-black etc.) still win by specificity. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display, "Cinzel", "Georgia", serif);
 }
 
 a {
@@ -47,28 +58,59 @@ textarea {
   font: inherit;
 }
 
+/* Warm panel with a brass hairline and a faint top sheen — replaces the old
+   cool glassy blur with something that reads like aged brass on dark wood. */
 .strategy-panel {
   border: 1px solid var(--line);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
-    rgba(14, 14, 14, 0.92);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(14px);
+    linear-gradient(180deg, rgba(230, 200, 116, 0.05), rgba(255, 255, 255, 0.008)),
+    rgba(23, 21, 16, 0.94);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42);
 }
 
 .gold-title {
-  background: linear-gradient(180deg, #fff2a7, #d4af37 48%, #8d6813);
+  background: linear-gradient(180deg, #f6e3a6, #c8a24a 52%, #7a5f21);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 14px 36px rgba(212, 175, 55, 0.18);
 }
 
 .silver-title {
-  background: linear-gradient(180deg, #ffffff, #d6d6d6 50%, #808080);
+  background: linear-gradient(180deg, #f4efe2, #d8cfb8 52%, #8f866f);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Heraldic divider: a brass rule with a centered diamond. */
+.crest-rule {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line) 12%, var(--line) 88%, transparent);
+}
+.crest-rule::after {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  content: "";
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--brass);
+}
+
+/* Small banner/ribbon label used above section titles. */
+.banner-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: rgba(155, 53, 53, 0.14);
+  color: var(--brass-bright);
+  padding: 4px 12px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .hero-mask::after {
@@ -76,12 +118,12 @@ textarea {
   inset: 0;
   content: "";
   background:
-    linear-gradient(90deg, rgba(5, 5, 5, 0.82), rgba(5, 5, 5, 0.18) 46%, rgba(5, 5, 5, 0.82)),
-    linear-gradient(180deg, rgba(5, 5, 5, 0.18), rgba(5, 5, 5, 0.78));
+    linear-gradient(90deg, rgba(16, 15, 12, 0.9), rgba(16, 15, 12, 0.28) 46%, rgba(16, 15, 12, 0.86)),
+    linear-gradient(180deg, rgba(16, 15, 12, 0.22), rgba(16, 15, 12, 0.9));
 }
 
 .thin-scrollbar {
-  scrollbar-color: rgba(212, 175, 55, 0.4) rgba(255, 255, 255, 0.04);
+  scrollbar-color: rgba(200, 162, 74, 0.4) rgba(255, 255, 255, 0.04);
   scrollbar-width: thin;
 }
 

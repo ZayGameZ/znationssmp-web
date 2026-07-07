@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Gamepad2, Map, ScrollText, Shield, Store, Trophy, Users } from "lucide-react";
+import { Coins, Gamepad2, Landmark, Map, ScrollText, Shield, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MetricCard } from "@/components/ui/metric-card";
 import { PublicNav } from "@/components/layout/public-nav";
 import { LiveServerStatusCard } from "@/components/dashboard/live-server-status-card";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
@@ -18,6 +17,15 @@ type BluemapSnapshot = {
   markers?: MapMarker[];
 };
 
+const pillars = [
+  [Landmark, "Towns & Nations", "Found a town, forge a nation, and claim your borders."],
+  [Coins, "Player Economy", "A living market — shops, trade, and hard-earned coin."],
+  [Swords, "Events & Wars", "Seasonal events, challenges, and contested territory."],
+  [Shield, "Professions", "Specialize your craft with the ZProfessions system."],
+  [Gamepad2, "Java + Bedrock", "True crossplay through Geyser and Floodgate."],
+  [Map, "Living World", "Explore the realm on the live BlueMap."]
+] as const;
+
 export async function PublicHome() {
   const config = getPublicConfig();
   const bluemapResult = await withKV<BluemapSnapshot>("cache:bluemap", async () => ({
@@ -28,92 +36,136 @@ export async function PublicHome() {
   const markers = bluemapResult.data.markers ?? siteData.markers;
 
   return (
-    <div className="min-h-screen bg-zn-black text-white">
+    <div className="min-h-screen bg-zn-black text-zn-parchment">
       <PublicNav />
-      <main className="mx-auto max-w-[1840px] px-4 pb-8 md:px-8">
-        <section className="hero-mask relative min-h-[560px] overflow-hidden border-x border-b border-zn-line">
-          <Image src="/backgrounds/castle-hero.jpg" alt="ZNations kingdom at golden hour" fill priority className="object-cover" />
-          <div className="relative z-10 grid min-h-[560px] items-center gap-8 px-4 py-16 lg:grid-cols-[1fr_430px] lg:px-7">
+      <main className="mx-auto max-w-[1680px] px-4 pb-10 md:px-8">
+        {/* Hero */}
+        <section className="hero-mask relative min-h-[580px] overflow-hidden border-x border-b border-zn-line">
+          <Image src="/backgrounds/castle-hero.jpg" alt="The ZNations realm at golden hour" fill priority className="object-cover" />
+          <div className="relative z-10 grid min-h-[580px] items-center gap-10 px-5 py-16 lg:grid-cols-[1fr_420px] lg:px-10">
             <div className="max-w-3xl">
-              <h1 className="text-5xl font-black uppercase leading-none md:text-7xl lg:text-8xl">
+              <span className="banner-tab mb-6">Java + Bedrock Crossplay</span>
+              <h1 className="font-display text-6xl leading-[0.95] tracking-[0.02em] md:text-8xl">
                 <span className="gold-title">ZNations</span> <span className="silver-title">SMP</span>
               </h1>
-              <p className="mt-4 text-2xl font-black uppercase">A civilization-based SMP experience</p>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-zinc-200">
-                Build your town, form your nation, trade, wage war, and shape the world around you. Bedrock and Java crossplay.
+              <p className="mt-5 font-display text-xl tracking-[0.14em] text-zn-lightGold md:text-2xl">A CIVILIZATION SMP</p>
+              <p className="mt-5 max-w-xl text-lg leading-8 text-zn-parchment/80">
+                Build your town, forge your nation, master a trade, and shape the world around you.
+                A realm of towns, economy, and ambition — carved out block by block.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-9 flex flex-wrap gap-3">
                 <Button asChild size="lg"><Link href="/how-to-join"><Gamepad2 className="h-5 w-5" /> {config.javaAddress}</Link></Button>
                 <Button asChild variant="outline" size="lg">
-                  {configuredUrl(config.discordUrl) ? <a href={config.discordUrl}>Discord Server</a> : <Link href="/discord">Discord Server</Link>}
+                  {configuredUrl(config.discordUrl) ? <a href={config.discordUrl}>Join the Discord</a> : <Link href="/discord">Join the Discord</Link>}
                 </Button>
               </div>
             </div>
             <LiveServerStatusCard initialServer={siteData.server} initialSource="offline" />
           </div>
         </section>
-        <section className="grid border-x border-b border-zn-line md:grid-cols-3 xl:grid-cols-6">
-          {[
-            [Gamepad2, "Crossplay", "Play on Java or Bedrock anytime."],
-            [Store, "Marketplace", "Browse synced shop data when the bridge is online."],
-            [Users, "Players", "View public online profiles after server sync."],
-            [Shield, "Professions", "Profession data appears after ZProfessions sync."],
-            [Map, "Bluemap", "Open the live map when configured."],
-            [ScrollText, "Rules", "Read the basics before joining."]
-          ].map(([Icon, title, text]) => (
-            <div key={String(title)} className="flex gap-4 border-r border-zn-line p-5 last:border-r-0">
-              <Icon className="h-9 w-9 shrink-0 text-zn-gold" />
-              <div><p className="font-black uppercase text-zn-lightGold">{String(title)}</p><p className="mt-1 text-sm text-zinc-400">{String(text)}</p></div>
-            </div>
-          ))}
+
+        {/* Realm ledger strip */}
+        <section className="grid border-x border-b border-zn-line text-sm sm:grid-cols-3">
+          <LedgerCell label="Java Edition" value={config.javaAddress} />
+          <LedgerCell label="Bedrock Edition" value={`${config.bedrockAddress} : ${config.bedrockPort}`} />
+          <LedgerCell label="Crossplay" value="Geyser + Floodgate" last />
         </section>
-        <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_1.6fr_1fr]">
-          <Card>
-            <CardHeader><CardTitle>Recent News</CardTitle><Link href="/events" className="text-xs font-black uppercase text-zn-gold">View All</Link></CardHeader>
-            <CardContent className="space-y-4">
-              {siteData.announcements.length ? siteData.announcements.map((item) => (
-                <article key={item.id} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
-                  <Image src={item.image} alt="" width={96} height={58} className="rounded object-cover" />
-                  <div><p className="font-black">{item.title}</p><p className="text-sm text-zinc-400">{item.body}</p><p className="text-xs text-zinc-500">{item.timeAgo}</p></div>
-                </article>
-              )) : <EmptyState title="No announcements synced" body="Announcements will appear here after the website admin panel or server bridge publishes them." />}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle>Live Map</CardTitle><Link href="/map" className="text-xs font-black uppercase text-zn-gold">View Full Map</Link></CardHeader>
-            <CardContent>
-              <div className="relative h-[310px] overflow-hidden rounded border border-zn-line">
-                <Image src="/backgrounds/map-preview.jpg" alt="ZNations territory map" fill className="object-cover" />
-                {markers.map((marker) => (
-                  <span key={marker.id} className="absolute grid h-9 w-9 place-items-center rounded border border-black/60 bg-black/75 text-xs font-black text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>ZN</span>
-                ))}
-                {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/75 p-3 text-sm text-zinc-300">Waiting for Bluemap marker sync.</div> : null}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle>Top Nations</CardTitle><Link href="/leaderboards" className="text-xs font-black uppercase text-zn-gold">View All</Link></CardHeader>
-            <CardContent className="space-y-3">
-              {siteData.nations.length ? siteData.nations.map((nation, index) => (
-                <div key={nation.id} className="flex items-center justify-between border-b border-white/10 pb-3 last:border-0">
-                  <div><p className="font-black"><span className="mr-3 text-zn-gold">{index + 1}</span>{nation.name}</p><p className="text-xs text-zinc-500">{nation.members} members</p></div>
-                  <p className="font-black">{currency(nation.wealth)}</p>
+
+        {/* Pillars of the realm */}
+        <section className="mt-12">
+          <SectionHeading tab="The Realm" title="Pillars of ZNations" />
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {pillars.map(([Icon, title, text]) => (
+              <div key={title} className="strategy-panel group rounded-lg p-5 transition hover:border-zn-gold/50">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 place-items-center rounded-md border border-zn-line bg-zn-crimson/10 text-zn-gold transition group-hover:text-zn-lightGold">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="font-display text-lg tracking-wide text-zn-parchment">{title}</h3>
                 </div>
-              )) : <EmptyState title="No nations synced" body="Nation rankings are hidden until the future towns/nations plugin sends real data." />}
-            </CardContent>
-          </Card>
+                <p className="mt-3 text-sm leading-6 text-zn-parchment/60">{text}</p>
+              </div>
+            ))}
+          </div>
         </section>
-        <section className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={Store} label="Shop" value="Marketplace" subtext="Browse the public economy" />
-          <MetricCard icon={Trophy} label="Leaderboards" value="Rankings" subtext="Track top players and nations" />
-          <MetricCard icon={Map} label="Map" value="Bluemap" subtext="Open the live world map" />
-          <MetricCard icon={Users} label="Players" value="Profiles" subtext="Online players and public stats" />
+
+        {/* News / Map / Nations */}
+        <section className="mt-12">
+          <SectionHeading tab="Dispatches" title="State of the Realm" />
+          <div className="mt-6 grid gap-4 xl:grid-cols-[1fr_1.5fr_1fr]">
+            <Card>
+              <CardHeader><CardTitle>Recent News</CardTitle><Link href="/events" className="text-xs uppercase tracking-wide text-zn-gold">View All</Link></CardHeader>
+              <CardContent className="space-y-4">
+                {siteData.announcements.length ? siteData.announcements.map((item) => (
+                  <article key={item.id} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
+                    <Image src={item.image} alt="" width={92} height={56} className="rounded object-cover" />
+                    <div><p className="font-display text-sm tracking-wide">{item.title}</p><p className="text-sm text-zn-parchment/60">{item.body}</p><p className="text-xs text-zn-parchment/40">{item.timeAgo}</p></div>
+                  </article>
+                )) : <EmptyState title="No dispatches yet" body="News appears here once an admin publishes an announcement." />}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>The Living Map</CardTitle><Link href="/map" className="text-xs uppercase tracking-wide text-zn-gold">Open Map</Link></CardHeader>
+              <CardContent>
+                <div className="relative h-[320px] overflow-hidden rounded border border-zn-line">
+                  <Image src="/backgrounds/map-preview.jpg" alt="ZNations territory map" fill className="object-cover" />
+                  {markers.map((marker) => (
+                    <span key={marker.id} className="absolute grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-zn-gold/60 bg-black/80 text-[10px] font-bold text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>ZN</span>
+                  ))}
+                  {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/80 p-3 text-sm text-zn-parchment/70">Waiting for BlueMap marker sync.</div> : null}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Top Nations</CardTitle><Link href="/leaderboards" className="text-xs uppercase tracking-wide text-zn-gold">Rankings</Link></CardHeader>
+              <CardContent className="space-y-3">
+                {siteData.nations.length ? siteData.nations.map((nation, index) => (
+                  <div key={nation.id} className="flex items-center justify-between border-b border-white/10 pb-3 last:border-0">
+                    <div><p className="font-display tracking-wide"><span className="mr-3 text-zn-gold">{index + 1}</span>{nation.name}</p><p className="text-xs text-zn-parchment/40">{nation.members} members</p></div>
+                    <p className="font-medium text-zn-lightGold">{currency(nation.wealth)}</p>
+                  </div>
+                )) : <EmptyState title="No nations yet" body="Nation rankings appear once town and nation data syncs from the server." />}
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Call to arms */}
+        <section className="mt-12 overflow-hidden rounded-lg border border-zn-line bg-[radial-gradient(circle_at_top,rgba(155,53,53,.16),transparent_46%),#141109] p-8 text-center md:p-12">
+          <span className="banner-tab mx-auto">Your Legacy Awaits</span>
+          <h2 className="mt-5 font-display text-3xl tracking-wide md:text-5xl">Claim your place in the realm</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-zn-parchment/70">
+            Create an account, link your Minecraft name, and step into a world that remembers what you build.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg"><Link href="/register">Create Account</Link></Button>
+            <Button asChild variant="outline" size="lg"><Link href="/how-to-join"><ScrollText className="h-5 w-5" /> How to Join</Link></Button>
+          </div>
         </section>
       </main>
     </div>
   );
 }
 
+function SectionHeading({ tab, title }: { tab: string; title: string }) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <span className="banner-tab">{tab}</span>
+      <h2 className="mt-3 font-display text-3xl tracking-wide md:text-4xl">{title}</h2>
+      <div className="crest-rule mt-4 w-40" />
+    </div>
+  );
+}
+
+function LedgerCell({ label, value, last }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between gap-4 px-5 py-4 ${last ? "" : "border-b border-zn-line sm:border-b-0 sm:border-r"}`}>
+      <span className="text-xs uppercase tracking-[0.18em] text-zn-parchment/45">{label}</span>
+      <span className="font-display text-sm tracking-wide text-zn-lightGold">{value}</span>
+    </div>
+  );
+}
+
 function EmptyState({ title, body }: { title: string; body: string }) {
-  return <div className="rounded border border-zn-line bg-black/35 p-4"><p className="font-black text-zn-lightGold">{title}</p><p className="mt-1 text-sm text-zinc-400">{body}</p></div>;
+  return <div className="rounded border border-zn-line bg-black/30 p-4"><p className="font-display text-sm tracking-wide text-zn-lightGold">{title}</p><p className="mt-1 text-sm text-zn-parchment/55">{body}</p></div>;
 }
