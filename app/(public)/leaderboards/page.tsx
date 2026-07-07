@@ -3,9 +3,8 @@ import { ComingSoonPage } from "@/components/dashboard/coming-soon-page";
 export default function LeaderboardsPage() {
   return (
     <ComingSoonPage
-      embedded
       title="Leaderboards"
-      description="Kills, riches, playtime, top towns, and cosmetic titles — the realm's rankings will live here once real player statistics sync from the server."
+      description="Warriors, tycoons, architects, and veterans — the realm's greatest will be crowned here. Rankings open once enough player history has been recorded."
       integration="the ZNationsBridge player-stats feed (leaderboard snapshots)"
     />
   );

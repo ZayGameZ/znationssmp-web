@@ -30,11 +30,11 @@ export function ComingSoonPage({
         </div>
       </section>
       <Card className="mt-5">
-        <CardHeader><CardTitle>Not Connected Yet</CardTitle><PlugZap className="h-5 w-5 text-zn-gold" /></CardHeader>
+        <CardHeader><CardTitle>In the Forge</CardTitle><PlugZap className="h-5 w-5 text-zn-gold" /></CardHeader>
         <CardContent>
           <p className="text-sm leading-6 text-zn-parchment/60">
-            This page is intentionally parked until <span className="font-medium text-zn-lightGold">{integration}</span> is connected.
-            It shows no mock controls or fake actions — when the data source is live, the real feature takes its place here.
+            This feature opens once <span className="font-medium text-zn-lightGold">{integration}</span> is ready.
+            We only ship the real thing — no mock buttons, no pretend data.
           </p>
         </CardContent>
       </Card>

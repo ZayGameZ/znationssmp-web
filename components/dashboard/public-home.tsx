@@ -112,7 +112,7 @@ export async function PublicHome() {
                   {markers.map((marker) => (
                     <span key={marker.id} className="absolute grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-zn-gold/60 bg-black/80 text-[10px] font-bold text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>ZN</span>
                   ))}
-                  {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/80 p-3 text-sm text-zn-parchment/70">Waiting for BlueMap marker sync.</div> : null}
+                  {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/80 p-3 text-sm text-zn-parchment/70">Town and nation markers appear here as the realm grows.</div> : null}
                 </div>
               </CardContent>
             </Card>
@@ -124,7 +124,7 @@ export async function PublicHome() {
                     <div><p className="font-display tracking-wide"><span className="mr-3 text-zn-gold">{index + 1}</span>{nation.name}</p><p className="text-xs text-zn-parchment/40">{nation.members} members</p></div>
                     <p className="font-medium text-zn-lightGold">{currency(nation.wealth)}</p>
                   </div>
-                )) : <EmptyState title="No nations yet" body="Nation rankings appear once town and nation data syncs from the server." />}
+                )) : <EmptyState title="No nations founded yet" body="The first nations of the realm will be honored here. Yours could be among them." />}
               </CardContent>
             </Card>
           </div>

@@ -80,7 +80,7 @@ export async function DashboardView({ user }: { user: User }) {
           <CardContent>
             <p className="font-display text-2xl text-zn-lightGold">{currency(user.balance)}</p>
             <p className="mt-2 text-sm text-zn-parchment/60">
-              {linked ? "Balance syncs from the server as you play." : "Balance appears after your account is linked and the server syncs."}
+              {linked ? "Your balance updates as you play." : "Link your Minecraft account to carry your balance here."}
             </p>
           </CardContent>
         </Card>
@@ -133,8 +133,8 @@ export async function DashboardView({ user }: { user: User }) {
         <Card>
           <CardHeader><CardTitle>The Market</CardTitle><Store className="h-5 w-5 text-zn-gold" /></CardHeader>
           <CardContent>
-            <EmptyState title="Market ledger awaits" body="Live prices, trends, and trade history appear once the shop plugin syncs real market data." />
-            <Button asChild variant="outline" size="sm" className="mt-4"><Link href="/shop">Browse the Shop</Link></Button>
+            <EmptyState title="The market ledger awaits" body="Live prices, trends, and trade history will be recorded here as the realm's economy opens." />
+            <Button asChild variant="outline" size="sm" className="mt-4"><Link href="/shop">Browse the Market</Link></Button>
           </CardContent>
         </Card>
       </section>
