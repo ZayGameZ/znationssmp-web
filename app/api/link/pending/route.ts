@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireIngestAuth } from "@/lib/api/ingest";
-import { withD1, type D1Row } from "@/lib/db/d1";
+import { withDb, type DbRow } from "@/lib/db/database";
 import { siteData } from "@/lib/mock-data";
 
-type LinkRow = D1Row & {
+type LinkRow = DbRow & {
   id: string;
   user_id: string;
   website_username: string;
@@ -22,12 +22,12 @@ export async function GET(request: Request) {
   const minecraftName = new URL(request.url).searchParams.get("minecraftName")?.trim();
   if (!minecraftName) return NextResponse.json({ error: "minecraftName is required." }, { status: 400 });
 
-  const link = await withD1(
+  const link = await withDb(
     async (db) => {
       const row = await db
         .prepare(
           `SELECT * FROM account_links
-           WHERE lower(minecraft_name) = lower(?) AND status = 'pending' AND expires_at > datetime('now')
+           WHERE lower(minecraft_name) = lower(?) AND status = 'pending' AND expires_at::timestamptz > now()
            ORDER BY requested_at DESC LIMIT 1`
         )
         .bind(minecraftName)

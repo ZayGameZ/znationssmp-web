@@ -1,8 +1,8 @@
-import { withD1, type D1Row } from "@/lib/db/d1";
+import { withDb, type DbRow } from "@/lib/db/database";
 import { siteData } from "@/lib/mock-data";
 import type { AccountLink } from "@/types";
 
-type AccountLinkRow = D1Row & {
+type AccountLinkRow = DbRow & {
   id: string;
   user_id: string;
   website_username: string;
@@ -15,7 +15,7 @@ type AccountLinkRow = D1Row & {
 };
 
 export async function getAccountLinksForUser(userId: string) {
-  return withD1(
+  return withDb(
     async (db) => {
       const rows = await db.prepare("SELECT * FROM account_links WHERE user_id = ? ORDER BY requested_at DESC").bind(userId).all<AccountLinkRow>();
       return rows.results.map(mapLink);

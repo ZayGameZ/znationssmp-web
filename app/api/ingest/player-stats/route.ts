@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readIngestEnvelope, requireIngestAuth, storeIngestSnapshot } from "@/lib/api/ingest";
-import { withD1 } from "@/lib/db/d1";
+import { withDb } from "@/lib/db/database";
 import type { PlayerProfile } from "@/types";
 
 // Server plugin push: POST { sentAt, plugin, data: PlayerProfile | PlayerProfile[] | { profiles: PlayerProfile[] } }
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const result = await storeIngestSnapshot("cache:player-profiles", { ...envelope, data: profiles });
     const updatedAt = new Date().toISOString();
 
-    await withD1(
+    await withDb(
       async (db) => {
         for (const profile of profiles) {
           await db

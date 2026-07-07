@@ -1,8 +1,8 @@
-import { withD1, type D1Row } from "@/lib/db/d1";
+import { withDb, type DbRow } from "@/lib/db/database";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import type { Role, User } from "@/types";
 
-type UserRow = D1Row & {
+type UserRow = DbRow & {
   id: string;
   username: string;
   role: Role;
@@ -17,7 +17,7 @@ type UserRow = D1Row & {
 };
 
 export async function findUserById(userId: string) {
-  return withD1(
+  return withDb(
     async (db) => {
       const row = await db.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<UserRow>();
       return row ? rowToUser(row) : null;
@@ -27,7 +27,7 @@ export async function findUserById(userId: string) {
 }
 
 export async function findUserByCredentials(username: string, password: string) {
-  return withD1(
+  return withDb(
     async (db) => {
       const row = await db.prepare("SELECT * FROM users WHERE lower(username) = lower(?)").bind(username).first<UserRow>();
       if (!row || !(await verifyPassword(password, row.password_hash))) return null;
@@ -38,7 +38,7 @@ export async function findUserByCredentials(username: string, password: string) 
 }
 
 export async function createWebsiteUser(username: string, password: string) {
-  return withD1(
+  return withDb(
     async (db) => {
       const id = `u-${crypto.randomUUID()}`;
       const passwordHash = await hashPassword(password);

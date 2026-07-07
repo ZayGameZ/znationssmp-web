@@ -271,7 +271,7 @@ export interface IngestResult {
   syncedAt: string;
   storage?: {
     cache: boolean;
-    d1: boolean;
+    database: boolean;
     durable: boolean;
   };
 }

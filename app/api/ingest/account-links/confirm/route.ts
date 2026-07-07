@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readIngestEnvelope, requireIngestAuth, storeIngestSnapshot } from "@/lib/api/ingest";
-import { withD1 } from "@/lib/db/d1";
+import { withDb } from "@/lib/db/database";
 
 type ConfirmPayload = {
   websiteUsername: string;
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const confirmedAt = new Date().toISOString();
-    const changed = await withD1(
+    const changed = await withDb(
       async (db) => {
         const result = await db
           .prepare(
