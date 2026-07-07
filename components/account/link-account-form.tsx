@@ -28,7 +28,7 @@ export function LinkAccountForm({ websiteUsername }: { websiteUsername: string }
       setMessage(body.error ?? "Could not create link request.");
       return;
     }
-    setMessage("Waiting for in-game confirmation.");
+    setMessage("Link request created — one step left.");
     setPendingCommand(`/web confirm ${websiteUsername}`);
   }
 
@@ -46,9 +46,9 @@ export function LinkAccountForm({ websiteUsername }: { websiteUsername: string }
         </form>
         {pendingCommand ? (
           <div className="mt-5 rounded border border-zn-line bg-black/40 p-4">
-            <p className="text-xs font-black uppercase text-zinc-500">Next Step In Game</p>
+            <p className="text-xs font-black uppercase text-zinc-500">Next Step — In Game</p>
             <p className="mt-2 break-all text-xl font-black text-zn-lightGold">{pendingCommand}</p>
-            <p className="mt-2 text-sm text-zinc-400">The server plugin confirms this request through the authenticated account-link ingest endpoint.</p>
+            <p className="mt-2 text-sm text-zinc-400">Join the server as {minecraftName || "your Minecraft account"} and run this command. Your link is verified against your real player identity — it expires after 24 hours if unused.</p>
           </div>
         ) : null}
       </CardContent>

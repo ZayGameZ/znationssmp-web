@@ -19,7 +19,7 @@ function normalizeServer(data: ServerSnapshot): ServerSnapshot {
     maxPlayers: Number(data.maxPlayers ?? 0),
     tps: Number(data.tps ?? 0),
     pingMs: Number(data.pingMs ?? 0),
-    uptime: data.uptime || "Waiting for sync",
+    uptime: data.uptime || "—",
     lastSyncedAt: data.lastSyncedAt || "",
     stale: Boolean(data.stale)
   };
@@ -99,9 +99,11 @@ export function LiveServerStatusCard({ initialServer, initialSource = "offline" 
         </div>
         <p className="mt-4 text-xs uppercase text-zinc-500">Uptime</p>
         <p className="text-2xl font-black">{server.uptime}</p>
-        <p className="mt-2 text-xs uppercase text-zinc-500">Source: {source}</p>
-        {error ? <p className="mt-2 text-xs text-red-300">Live refresh failed: {error}</p> : null}
-        <Button asChild className="mt-5 w-full"><Link href="/how-to-join">Join The Adventure</Link></Button>
+        {source === "live" || source === "cache" ? (
+          <p className="mt-2 text-xs text-zinc-500">Updates every 15 seconds</p>
+        ) : null}
+        {error ? <p className="mt-2 text-xs text-zinc-500">Reconnecting…</p> : null}
+        <Button asChild className="mt-5 w-full"><Link href="/how-to-join">Join the Server</Link></Button>
       </CardContent>
     </Card>
   );
