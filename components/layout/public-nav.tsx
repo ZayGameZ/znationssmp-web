@@ -11,6 +11,9 @@ const nav = [
   ["Map", "/map"],
   ["Professions", "/professions"],
   ["Leaderboards", "/leaderboards"],
+  ["News", "/announcements"],
+  ["Polls", "/polls"],
+  ["Apply", "/apply"],
   ["Rules", "/rules"],
   ["Login", "/login"]
 ] as const;

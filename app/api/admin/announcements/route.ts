@@ -1,18 +1,36 @@
+import { NextResponse } from "next/server";
 import { accepted, api } from "@/lib/api/response";
-import { siteData } from "@/lib/mock-data";
+import { createAnnouncement, getAnnouncements } from "@/lib/api/adapters/announcements";
+import { writeAudit } from "@/lib/api/adapters/audit";
+import { requireRole } from "@/lib/auth/session";
 import { announcementInput } from "@/lib/validators/admin";
 
-// Admin content endpoint. D1 production implementation stores announcements and writes an audit log.
+// Admin content endpoint — backed by Supabase (announcements table). Every
+// successful publish also appends an audit row.
 export async function GET() {
-  return api(siteData.announcements);
+  return api(await getAnnouncements(), "cache");
 }
 
 export async function POST(request: Request) {
-  const input = announcementInput.parse(await request.json());
-  return accepted({
-    id: crypto.randomUUID(),
-    ...input,
-    image: "/backgrounds/news-update.jpg",
-    timeAgo: "just now"
+  const admin = await requireRole(["owner", "admin"]);
+  if (!admin) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
+
+  const parsed = announcementInput.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid announcement.", issues: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const announcement = await createAnnouncement(parsed.data);
+  if (!announcement) {
+    return NextResponse.json({ error: "Announcement storage is not configured." }, { status: 503 });
+  }
+
+  await writeAudit({
+    actor: admin.username,
+    action: "announcement.publish",
+    target: announcement.id,
+    details: { title: announcement.title, pinned: announcement.pinned }
   });
+
+  return accepted(announcement);
 }

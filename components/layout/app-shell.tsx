@@ -6,13 +6,16 @@ import {
   Landmark,
   ListChecks,
   Map,
+  Megaphone,
   Menu,
+  ShieldCheck,
   UserCircle,
   Settings,
   Shield,
   Store,
   Trophy,
-  Users
+  Users,
+  Vote
 } from "lucide-react";
 import { Brand } from "@/components/layout/brand";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +47,12 @@ const peopleNav: readonly NavLink[] = [
   ["Town & Nation", "/town", Landmark]
 ];
 
+const communityNav: readonly NavLink[] = [
+  ["Announcements", "/announcements", Megaphone],
+  ["Polls", "/polls", Vote],
+  ["Apply for Staff", "/apply", ShieldCheck]
+];
+
 export async function AppShell({ children }: { children: ReactNode }) {
   // Real signed-in user (falls back to a guest identity when not logged in).
   const user = (await getCurrentUser()) ?? getGuestUser();
@@ -51,7 +60,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   const server = await withKV<ServerSnapshot>("cache:server-status", async () => siteData.server);
 
   const adminNav: readonly NavLink[] = isAdmin ? [["Admin", "/admin", Settings]] : [];
-  const allNav = [...realmNav, ...marketNav, ...peopleNav, ...adminNav];
+  const allNav = [...realmNav, ...marketNav, ...peopleNav, ...communityNav, ...adminNav];
 
   return (
     <div className="min-h-screen bg-zn-black text-zn-parchment">
@@ -61,6 +70,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
           <NavGroup label="The Realm" links={realmNav} />
           <NavGroup label="Market" links={marketNav} />
           <NavGroup label="People" links={peopleNav} />
+          <NavGroup label="Community" links={communityNav} />
           {isAdmin ? <NavGroup label="Crown" links={adminNav} /> : null}
         </div>
         <div className="absolute bottom-4 left-4 right-4 space-y-3">
