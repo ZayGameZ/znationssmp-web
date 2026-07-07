@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAccountLinksForUser } from "@/lib/api/adapters/account-links";
+import { getAnnouncements } from "@/lib/api/adapters/announcements";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
 import { siteData } from "@/lib/mock-data";
 import { currency } from "@/lib/utils";
@@ -25,6 +26,7 @@ export async function DashboardView({ user }: { user: User }) {
   const links = await getAccountLinksForUser(user.id);
   const activeLink = links.find((link) => link.status === "confirmed") ?? links.find((link) => link.status === "pending");
   const linked = activeLink?.status === "confirmed";
+  const announcements = await getAnnouncements(4);
 
   return (
     <div className="space-y-6">
@@ -114,15 +116,15 @@ export async function DashboardView({ user }: { user: User }) {
       {/* Dispatches + economy */}
       <section className="grid gap-4 xl:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>Realm Dispatches</CardTitle><ScrollText className="h-5 w-5 text-zn-gold" /></CardHeader>
+          <CardHeader><CardTitle>Realm Dispatches</CardTitle><Link href="/announcements" className="text-xs uppercase tracking-wide text-zn-gold">View All</Link></CardHeader>
           <CardContent>
-            {siteData.announcements.length ? (
+            {announcements.length ? (
               <div className="space-y-3">
-                {siteData.announcements.map((item) => (
-                  <article key={item.id} className="border-b border-white/10 pb-3 last:border-0">
+                {announcements.map((item) => (
+                  <Link key={item.id} href={`/announcements/${item.id}`} className="block border-b border-white/10 pb-3 last:border-0">
                     <p className="font-display tracking-wide">{item.title}</p>
-                    <p className="text-sm text-zn-parchment/60">{item.body}</p>
-                  </article>
+                    <p className="line-clamp-2 text-sm text-zn-parchment/60">{item.body}</p>
+                  </Link>
                 ))}
               </div>
             ) : (

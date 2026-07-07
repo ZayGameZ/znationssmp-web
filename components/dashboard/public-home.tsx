@@ -7,6 +7,7 @@ import { PublicNav } from "@/components/layout/public-nav";
 import { LiveServerStatusCard } from "@/components/dashboard/live-server-status-card";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
 import { withKV } from "@/lib/cache/kv";
+import { getAnnouncements } from "@/lib/api/adapters/announcements";
 import { siteData } from "@/lib/mock-data";
 import { currency } from "@/lib/utils";
 import type { MapMarker } from "@/types";
@@ -34,6 +35,7 @@ export async function PublicHome() {
     markers: siteData.markers
   }));
   const markers = bluemapResult.data.markers ?? siteData.markers;
+  const announcements = await getAnnouncements(4);
 
   return (
     <div className="min-h-screen bg-zn-black text-zn-parchment">
@@ -94,13 +96,13 @@ export async function PublicHome() {
           <SectionHeading tab="Dispatches" title="State of the Realm" />
           <div className="mt-6 grid gap-4 xl:grid-cols-[1fr_1.5fr_1fr]">
             <Card>
-              <CardHeader><CardTitle>Recent News</CardTitle><Link href="/events" className="text-xs uppercase tracking-wide text-zn-gold">View All</Link></CardHeader>
+              <CardHeader><CardTitle>Recent News</CardTitle><Link href="/announcements" className="text-xs uppercase tracking-wide text-zn-gold">View All</Link></CardHeader>
               <CardContent className="space-y-4">
-                {siteData.announcements.length ? siteData.announcements.map((item) => (
-                  <article key={item.id} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
+                {announcements.length ? announcements.map((item) => (
+                  <Link key={item.id} href={`/announcements/${item.id}`} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
                     <Image src={item.image} alt="" width={92} height={56} className="rounded object-cover" />
-                    <div><p className="font-display text-sm tracking-wide">{item.title}</p><p className="text-sm text-zn-parchment/60">{item.body}</p><p className="text-xs text-zn-parchment/40">{item.timeAgo}</p></div>
-                  </article>
+                    <div><p className="font-display text-sm tracking-wide">{item.title}</p><p className="line-clamp-2 text-sm text-zn-parchment/60">{item.body}</p><p className="text-xs text-zn-parchment/40">{item.timeAgo}</p></div>
+                  </Link>
                 )) : <EmptyState title="No dispatches yet" body="News appears here once an admin publishes an announcement." />}
               </CardContent>
             </Card>
