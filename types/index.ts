@@ -224,6 +224,44 @@ export interface Event {
   reward: string;
 }
 
+export type PollStatus = "open" | "closed";
+
+export interface PollOption {
+  id: string;
+  label: string;
+  votes: number;
+}
+
+export interface Poll {
+  id: string;
+  question: string;
+  description: string;
+  category: string;
+  status: PollStatus;
+  createdAt: string;
+  closesAt?: string;
+  options: PollOption[];
+  totalVotes: number;
+  votedOptionId?: string; // the current viewer's choice, if any
+}
+
+export type ApplicationRole = "discord-mod" | "server-admin";
+export type ApplicationStatus = "pending" | "reviewing" | "accepted" | "rejected";
+
+export interface StaffApplication {
+  id: string;
+  userId?: string;
+  websiteUsername?: string;
+  role: ApplicationRole;
+  discordUsername?: string;
+  minecraftUsername?: string;
+  answers: Record<string, string>;
+  status: ApplicationStatus;
+  adminNotes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface LeaderboardEntry {
   id: string;
   name: string;
