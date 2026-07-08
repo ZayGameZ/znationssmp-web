@@ -1,11 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Map } from "lucide-react";
 import { PublicNav } from "@/components/layout/public-nav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
-import { siteData } from "@/lib/mock-data";
 
 export default function MapPage() {
   const config = getPublicConfig();
@@ -31,15 +29,13 @@ export default function MapPage() {
             {hasLiveMap ? (
               <iframe src={config.bluemapUrl} title="ZNations live map" className="h-[68vh] min-h-[420px] w-full rounded border border-zn-line bg-black" />
             ) : (
-              <div className="relative h-[68vh] min-h-[420px] overflow-hidden rounded border border-zn-line">
-                <Image src="/backgrounds/map-preview.jpg" alt="ZNations map" fill className="object-cover" />
-                {siteData.markers.map((marker) => (
-                  <div key={marker.id} className="absolute -translate-x-1/2 -translate-y-1/2 rounded border border-black bg-black/80 px-3 py-2 text-xs font-medium text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>
-                    {marker.name}
-                  </div>
-                ))}
+              <div className="map-parchment relative grid h-[68vh] min-h-[420px] place-items-center overflow-hidden rounded border border-zn-line">
+                <div className="text-center">
+                  <Map className="mx-auto h-10 w-10 text-zn-gold/70" />
+                  <p className="mt-4 font-display text-lg tracking-wide text-zn-lightGold">The cartographers are still surveying</p>
+                </div>
                 <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/85 p-4 text-sm text-zn-parchment/75">
-                  The live interactive map opens here soon. Until then, join the server and explore in person —{" "}
+                  The live interactive map opens here once BlueMap is connected. Until then, join the server and explore in person —{" "}
                   <Link href="/how-to-join" className="text-zn-lightGold">here&apos;s how</Link>.
                 </div>
               </div>

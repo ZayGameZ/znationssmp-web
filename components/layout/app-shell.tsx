@@ -18,13 +18,13 @@ import {
   Vote
 } from "lucide-react";
 import { Brand } from "@/components/layout/brand";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/ui/status-pill";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getGuestUser } from "@/lib/auth/bootstrap";
 import { withKV } from "@/lib/cache/kv";
 import { siteData } from "@/lib/mock-data";
-import { currency } from "@/lib/utils";
 import type { ServerSnapshot } from "@/types";
 
 type NavLink = readonly [string, string, ComponentType<{ className?: string }>];
@@ -64,16 +64,18 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-zn-black text-zn-parchment">
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-zn-line bg-black/85 p-4 backdrop-blur-xl xl:block">
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 flex-col border-r border-zn-line bg-black/85 p-4 backdrop-blur-xl xl:flex">
         <Brand compact />
-        <div className="mt-7 space-y-7">
+        {/* Scrollable nav region so every group — including Crown/Admin — is
+            reachable no matter how many links there are or how short the viewport. */}
+        <div className="thin-scrollbar mt-6 flex-1 space-y-6 overflow-y-auto pr-1">
           <NavGroup label="The Realm" links={realmNav} />
           <NavGroup label="Market" links={marketNav} />
           <NavGroup label="People" links={peopleNav} />
           <NavGroup label="Community" links={communityNav} />
           {isAdmin ? <NavGroup label="Crown" links={adminNav} /> : null}
         </div>
-        <div className="absolute bottom-4 left-4 right-4 space-y-3">
+        <div className="mt-4 space-y-3 border-t border-zn-line pt-4">
           <div className="strategy-panel rounded-lg p-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="font-display text-sm tracking-wide">Server Status</p>
@@ -82,7 +84,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-wide text-zn-parchment/40">Players Online</p>
             <p className="font-display text-lg text-zn-lightGold">{server.data.playersOnline} / {server.data.maxPlayers}</p>
           </div>
-          <p className="text-center text-[10px] uppercase tracking-[0.22em] text-zn-parchment/30">ZNations SMP</p>
+          <LogoutButton className="px-1" />
         </div>
       </aside>
       <main className="xl:pl-72">
@@ -103,14 +105,15 @@ export async function AppShell({ children }: { children: ReactNode }) {
             </details>
             <Brand compact />
           </div>
-          <div className="hidden text-xs uppercase tracking-[0.22em] text-zn-parchment/40 xl:block">The Realm Hub — ZNations SMP</div>
+          <Link href="/" className="hidden text-xs uppercase tracking-[0.22em] text-zn-parchment/40 transition hover:text-zn-lightGold xl:block">← ZNations SMP</Link>
           <div className="flex items-center gap-3">
             <Badge>{user.role === "player" ? "Citizen" : user.role}</Badge>
             <div className="hidden text-right sm:block">
               <p className="font-display text-sm tracking-wide">{user.username}</p>
-              <p className="text-xs text-zn-emerald">{currency(user.balance)}</p>
+              <p className="text-xs uppercase tracking-wide text-zn-parchment/40">{user.role === "player" ? "Citizen" : user.role}</p>
             </div>
             <Image src={user.avatarUrl} alt={user.username} width={42} height={42} className="rounded border border-zn-line" />
+            <LogoutButton className="hidden md:inline-flex" label="" />
           </div>
         </header>
         <div className="mx-auto max-w-[1720px] px-4 py-6 md:px-8">{children}</div>

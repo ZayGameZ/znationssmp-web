@@ -16,8 +16,7 @@ export default async function AdminPollsPage() {
   const polls = await getPolls(user.id);
 
   return (
-    <div className="min-h-screen bg-zn-black p-4 text-white md:p-8">
-      <div className="mx-auto max-w-[1500px] space-y-4">
+    <div className="mx-auto max-w-[1500px] space-y-4">
         <Link href="/admin" className="inline-flex items-center gap-2 text-sm uppercase tracking-wide text-zinc-400 hover:text-zn-lightGold">
           <ArrowLeft className="h-4 w-4" /> Admin Console
         </Link>
@@ -27,7 +26,6 @@ export default async function AdminPollsPage() {
           <p className="mt-2 text-zinc-400">Put a question to the community. One vote per signed-in citizen.</p>
         </div>
         <PollManager initial={polls} />
-      </div>
     </div>
   );
 }

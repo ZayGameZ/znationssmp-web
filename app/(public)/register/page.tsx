@@ -1,14 +1,15 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
 import { RegisterForm } from "@/components/auth/register-form";
 import { PublicNav } from "@/components/layout/public-nav";
+import { getCurrentUser } from "@/lib/auth/session";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  if (await getCurrentUser()) redirect("/dashboard");
+
   return (
     <div className="min-h-screen bg-zn-black text-zn-parchment">
       <PublicNav />
-      <main className="relative grid min-h-[calc(100vh-80px)] place-items-center overflow-hidden px-4 py-12">
-        <Image src="/backgrounds/castle-hero.jpg" alt="" fill className="object-cover opacity-30" />
-        <div className="absolute inset-0 bg-black/75" />
+      <main className="realm-field relative grid min-h-[calc(100vh-80px)] place-items-center overflow-hidden px-4 py-12">
         <div className="relative z-10 w-full max-w-lg">
           <div className="mb-8 text-center">
             <span className="banner-tab mx-auto">Take the Oath</span>

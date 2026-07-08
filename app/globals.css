@@ -122,6 +122,50 @@ textarea {
     linear-gradient(180deg, rgba(16, 15, 12, 0.22), rgba(16, 15, 12, 0.9));
 }
 
+/* ── Image-free backdrops ─────────────────────────────────────────────────
+   Replaces the old photographic JPG backgrounds with layered CSS: warm brass
+   and crimson light, a faint heraldic weave, and a vignette. No raster assets,
+   so nothing to download and it scales to any viewport crisply. */
+.realm-hero {
+  position: relative;
+  background-color: #100f0c;
+  background-image:
+    radial-gradient(120% 150% at 14% -8%, rgba(230, 200, 116, 0.20), transparent 44%),
+    radial-gradient(120% 130% at 94% 6%, rgba(155, 53, 53, 0.22), transparent 48%),
+    repeating-linear-gradient(135deg, rgba(200, 162, 74, 0.05) 0 2px, transparent 2px 24px),
+    linear-gradient(180deg, #17140d 0%, #120f0a 60%, #0d0c09 100%);
+}
+/* Soft inner vignette so foreground text always has contrast. */
+.realm-hero::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 30%, transparent 40%, rgba(13, 12, 9, 0.72) 100%);
+}
+
+/* Quieter variant for auth / narrow pages. */
+.realm-field {
+  background-color: #110f0b;
+  background-image:
+    radial-gradient(90% 120% at 50% -12%, rgba(200, 162, 74, 0.13), transparent 52%),
+    radial-gradient(80% 90% at 88% 108%, rgba(155, 53, 53, 0.12), transparent 50%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 20px),
+    linear-gradient(180deg, #14120d, #0d0c0a);
+}
+
+/* Cartographer's parchment grid — replaces the map-preview photo. */
+.map-parchment {
+  background-color: #13110c;
+  background-image:
+    linear-gradient(rgba(200, 162, 74, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 162, 74, 0.09) 1px, transparent 1px),
+    radial-gradient(circle at 28% 38%, rgba(155, 53, 53, 0.12), transparent 40%),
+    radial-gradient(circle at 74% 64%, rgba(200, 162, 74, 0.10), transparent 46%),
+    linear-gradient(180deg, #15130d, #100e0a);
+  background-size: 46px 46px, 46px 46px, 100% 100%, 100% 100%, 100% 100%;
+}
+
 .thin-scrollbar {
   scrollbar-color: rgba(200, 162, 74, 0.4) rgba(255, 255, 255, 0.04);
   scrollbar-width: thin;

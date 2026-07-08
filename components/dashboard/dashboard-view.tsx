@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Coins, Crown, Link2, Map, MessageCircle, ScrollText, Store, Trophy, Users } from "lucide-react";
 import { LiveServerStatusCard } from "@/components/dashboard/live-server-status-card";
@@ -31,9 +30,7 @@ export async function DashboardView({ user }: { user: User }) {
   return (
     <div className="space-y-6">
       {/* Welcome banner */}
-      <section className="relative overflow-hidden rounded-lg border border-zn-line">
-        <Image src="/backgrounds/castle-hero.jpg" alt="" fill priority className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/60 to-black/85" />
+      <section className="realm-hero relative overflow-hidden rounded-lg border border-zn-line">
         <div className="relative grid gap-6 p-7 lg:grid-cols-[1fr_340px] lg:p-9">
           <div>
             <span className="banner-tab"><Crown className="h-3.5 w-3.5" /> {user.role === "player" ? "Citizen of the Realm" : user.role}</span>

@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Coins, Gamepad2, Landmark, Map, ScrollText, Shield, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicNav } from "@/components/layout/public-nav";
+import { AnnouncementBanner } from "@/components/community/announcement-banner";
 import { LiveServerStatusCard } from "@/components/dashboard/live-server-status-card";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
 import { withKV } from "@/lib/cache/kv";
@@ -31,7 +31,6 @@ export async function PublicHome() {
   const config = getPublicConfig();
   const bluemapResult = await withKV<BluemapSnapshot>("cache:bluemap", async () => ({
     mapUrl: process.env.NEXT_PUBLIC_BLUEMAP_URL ?? "",
-    preview: "/backgrounds/map-preview.jpg",
     markers: siteData.markers
   }));
   const markers = bluemapResult.data.markers ?? siteData.markers;
@@ -42,8 +41,7 @@ export async function PublicHome() {
       <PublicNav />
       <main className="mx-auto max-w-[1680px] px-4 pb-10 md:px-8">
         {/* Hero */}
-        <section className="hero-mask relative min-h-[580px] overflow-hidden border-x border-b border-zn-line">
-          <Image src="/backgrounds/castle-hero.jpg" alt="The ZNations realm at golden hour" fill priority className="object-cover" />
+        <section className="realm-hero relative min-h-[580px] overflow-hidden border-x border-b border-zn-line">
           <div className="relative z-10 grid min-h-[580px] items-center gap-10 px-5 py-16 lg:grid-cols-[1fr_420px] lg:px-10">
             <div className="max-w-3xl">
               <span className="banner-tab mb-6">Java + Bedrock Crossplay</span>
@@ -100,7 +98,7 @@ export async function PublicHome() {
               <CardContent className="space-y-4">
                 {announcements.length ? announcements.map((item) => (
                   <Link key={item.id} href={`/announcements/${item.id}`} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
-                    <Image src={item.image} alt="" width={92} height={56} className="rounded object-cover" />
+                    <AnnouncementBanner category={item.category} className="h-14 w-24 shrink-0" />
                     <div><p className="font-display text-sm tracking-wide">{item.title}</p><p className="line-clamp-2 text-sm text-zn-parchment/60">{item.body}</p><p className="text-xs text-zn-parchment/40">{item.timeAgo}</p></div>
                   </Link>
                 )) : <EmptyState title="No dispatches yet" body="News appears here once an admin publishes an announcement." />}
@@ -109,12 +107,10 @@ export async function PublicHome() {
             <Card>
               <CardHeader><CardTitle>The Living Map</CardTitle><Link href="/map" className="text-xs uppercase tracking-wide text-zn-gold">Open Map</Link></CardHeader>
               <CardContent>
-                <div className="relative h-[320px] overflow-hidden rounded border border-zn-line">
-                  <Image src="/backgrounds/map-preview.jpg" alt="ZNations territory map" fill className="object-cover" />
-                  {markers.map((marker) => (
+                <div className="map-parchment relative grid h-[320px] place-items-center overflow-hidden rounded border border-zn-line">
+                  {markers.length ? markers.map((marker) => (
                     <span key={marker.id} className="absolute grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-zn-gold/60 bg-black/80 text-[10px] font-bold text-zn-lightGold" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>ZN</span>
-                  ))}
-                  {!markers.length ? <div className="absolute inset-x-4 bottom-4 rounded border border-zn-line bg-black/80 p-3 text-sm text-zn-parchment/70">Town and nation markers appear here as the realm grows.</div> : null}
+                  )) : <div className="rounded border border-zn-line bg-black/70 px-4 py-3 text-sm text-zn-parchment/70">Town and nation markers appear here as the realm grows.</div>}
                 </div>
               </CardContent>
             </Card>

@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Pin } from "lucide-react";
 import { PublicNav } from "@/components/layout/public-nav";
+import { AnnouncementBanner } from "@/components/community/announcement-banner";
 import { Badge } from "@/components/ui/badge";
 import { getAnnouncement } from "@/lib/api/adapters/announcements";
 
@@ -23,9 +23,7 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
         </Link>
 
         <article className="mt-6">
-          <div className="relative h-56 w-full overflow-hidden rounded-lg border border-zn-line md:h-72">
-            <Image src={announcement.image} alt="" fill priority className="object-cover" />
-          </div>
+          <AnnouncementBanner category={announcement.category} variant="hero" className="h-56 w-full md:h-72" />
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <Badge>{announcement.category}</Badge>
             {announcement.pinned ? (
