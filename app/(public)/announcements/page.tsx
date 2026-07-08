@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Megaphone, Pin } from "lucide-react";
 import { PublicNav } from "@/components/layout/public-nav";
+import { AnnouncementBanner } from "@/components/community/announcement-banner";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getAnnouncements } from "@/lib/api/adapters/announcements";
@@ -40,9 +40,7 @@ export default async function AnnouncementsPage() {
               <Link key={item.id} href={`/announcements/${item.id}`} className="block">
                 <Card className="transition hover:border-zn-gold/50">
                   <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                    <div className="relative h-32 w-full overflow-hidden rounded border border-zn-line sm:h-24 sm:w-44 sm:shrink-0">
-                      <Image src={item.image} alt="" fill className="object-cover" />
-                    </div>
+                    <AnnouncementBanner category={item.category} className="h-32 w-full sm:h-24 sm:w-44 sm:shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge>{item.category}</Badge>
