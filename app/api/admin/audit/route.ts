@@ -1,7 +1,8 @@
 import { api } from "@/lib/api/response";
-import { siteData } from "@/lib/mock-data";
+import { getAuditLogs } from "@/lib/api/adapters/audit";
 
-// Audit endpoint. Every admin mutation should append a D1 audit row in production.
+// Audit endpoint — backed by Supabase (audit_logs table), populated by writeAudit()
+// calls from every admin mutation (announcements, events, polls, applications).
 export async function GET() {
-  return api(siteData.auditLogs);
+  return api(await getAuditLogs(), "cache");
 }

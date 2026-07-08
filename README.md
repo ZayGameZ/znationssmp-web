@@ -97,7 +97,7 @@ Linking never trusts a typed username alone:
 ## Plugin → website integration
 
 Read endpoints (site → user): `/api/server/status`, `/api/server/players`,
-`/api/dynamicshop/items`, `/api/dynamicshop/market`, `/api/dynamicshop/checkout`,
+`/api/dynamicshop/items`, `/api/dynamicshop/market`,
 `/api/zprofessions/summary`, `/api/towns`, `/api/nations`, `/api/bluemap`,
 `/api/queue`, `/api/admin/announcements`, `/api/admin/events`, `/api/admin/audit`.
 

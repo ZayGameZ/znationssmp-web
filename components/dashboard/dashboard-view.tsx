@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAccountLinksForUser } from "@/lib/api/adapters/account-links";
 import { getAnnouncements } from "@/lib/api/adapters/announcements";
+import { getPlayerProfile } from "@/lib/api/adapters/players";
 import { configuredUrl, getPublicConfig } from "@/lib/config/site";
 import { siteData } from "@/lib/mock-data";
 import { currency } from "@/lib/utils";
@@ -26,6 +27,13 @@ export async function DashboardView({ user }: { user: User }) {
   const activeLink = links.find((link) => link.status === "confirmed") ?? links.find((link) => link.status === "pending");
   const linked = activeLink?.status === "confirmed";
   const announcements = await getAnnouncements(4);
+
+  // The `users` row only ever holds the balance/playtime from signup (both 0)
+  // and is never updated afterward — the real, live numbers come from the
+  // plugin-pushed player_profiles row, keyed by the linked Minecraft name.
+  const liveProfile = linked && activeLink ? (await getPlayerProfile(activeLink.minecraftName)).data : null;
+  const balance = liveProfile?.balance ?? user.balance;
+  const playtimeMinutes = liveProfile?.playtimeMinutes ?? user.playtimeMinutes;
 
   return (
     <div className="space-y-6">
@@ -77,7 +85,7 @@ export async function DashboardView({ user }: { user: User }) {
         <Card>
           <CardHeader><CardTitle>Coin Purse</CardTitle><Coins className="h-5 w-5 text-zn-gold" /></CardHeader>
           <CardContent>
-            <p className="font-display text-2xl text-zn-lightGold">{currency(user.balance)}</p>
+            <p className="font-display text-2xl text-zn-lightGold">{currency(balance)}</p>
             <p className="mt-2 text-sm text-zn-parchment/60">
               {linked ? "Your balance updates as you play." : "Link your Minecraft account to carry your balance here."}
             </p>
@@ -86,7 +94,7 @@ export async function DashboardView({ user }: { user: User }) {
         <Card>
           <CardHeader><CardTitle>Time in the Realm</CardTitle><Trophy className="h-5 w-5 text-zn-gold" /></CardHeader>
           <CardContent>
-            <p className="font-display text-2xl text-zn-lightGold">{Math.round(user.playtimeMinutes / 60)}h</p>
+            <p className="font-display text-2xl text-zn-lightGold">{Math.round(playtimeMinutes / 60)}h</p>
             <p className="mt-2 text-sm text-zn-parchment/60">
               {linked ? "Playtime recorded from server sessions." : "Playtime appears once your account is linked."}
             </p>

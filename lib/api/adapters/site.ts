@@ -1,12 +1,9 @@
+import { withKV } from "@/lib/cache/kv";
 import { siteData } from "@/lib/mock-data";
 import type {
-  Announcement,
-  Event,
-  IntegrationStatus,
   MarketItem,
   Nation,
   Profession,
-  QueuedAction,
   ServerSnapshot,
   SiteData,
   Town
@@ -24,8 +21,15 @@ export async function getMarketItems(): Promise<MarketItem[]> {
   return siteData.items;
 }
 
+// Same cache key + fallback shape as /api/zprofessions/summary, so this reflects
+// whatever the ZProfessions plugin last pushed instead of the static catalog.
 export async function getProfessions(): Promise<Profession[]> {
-  return siteData.professions;
+  const result = await withKV("cache:zprofessions-summary", async () => ({
+    professions: siteData.professions,
+    leaderboards: siteData.leaderboards.professions,
+    currentUserProfession: siteData.currentUser.professionId
+  }));
+  return result.data.professions;
 }
 
 export async function getTowns(): Promise<Town[]> {
@@ -34,20 +38,4 @@ export async function getTowns(): Promise<Town[]> {
 
 export async function getNations(): Promise<Nation[]> {
   return siteData.nations;
-}
-
-export async function getAnnouncements(): Promise<Announcement[]> {
-  return siteData.announcements;
-}
-
-export async function getEvents(): Promise<Event[]> {
-  return siteData.events;
-}
-
-export async function getQueuedActions(): Promise<QueuedAction[]> {
-  return siteData.queuedActions;
-}
-
-export async function getIntegrationStatuses(): Promise<IntegrationStatus[]> {
-  return siteData.integrations;
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Link2, ShieldCheck, UserCircle } from "lucide-react";
 import { getAccountLinksForUser } from "@/lib/api/adapters/account-links";
+import { getPlayerProfile } from "@/lib/api/adapters/players";
 import { getCurrentUser } from "@/lib/auth/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,12 @@ export default async function AccountPage() {
   if (!user) redirect("/login");
   const links = await getAccountLinksForUser(user.id);
   const activeLink = links.find((link) => link.status === "confirmed") ?? links.find((link) => link.status === "pending");
+  const linked = activeLink?.status === "confirmed";
+  // See dashboard-view.tsx: the `users` row's balance/playtime never update after
+  // signup — the live numbers live on the plugin-pushed player_profiles row.
+  const liveProfile = linked && activeLink ? (await getPlayerProfile(activeLink.minecraftName)).data : null;
+  const balance = liveProfile?.balance ?? user.balance;
+  const playtimeMinutes = liveProfile?.playtimeMinutes ?? user.playtimeMinutes;
 
   return (
     <div className="space-y-5">
@@ -24,8 +31,8 @@ export default async function AccountPage() {
           <CardHeader><CardTitle>{user.username}</CardTitle><UserCircle className="h-5 w-5 text-zn-gold" /></CardHeader>
           <CardContent className="space-y-3 text-sm text-zinc-300">
             <Row label="Role" value={user.role} />
-            <Row label="Balance Snapshot" value={`$${user.balance.toLocaleString()}`} />
-            <Row label="Playtime Snapshot" value={`${Math.round(user.playtimeMinutes / 60)}h`} />
+            <Row label="Balance Snapshot" value={`$${balance.toLocaleString()}`} />
+            <Row label="Playtime Snapshot" value={`${Math.round(playtimeMinutes / 60)}h`} />
             <div className="flex flex-wrap gap-2">{user.badges.map((badge) => <Badge key={badge}>{badge}</Badge>)}</div>
           </CardContent>
         </Card>
