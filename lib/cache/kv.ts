@@ -66,6 +66,9 @@ async function redisCommand(command: unknown[]) {
   const config = redisConfig();
   if (!config) return null;
 
+  // Bound the REST call so a slow/unreachable Redis endpoint degrades to the
+  // in-memory + fallback path (getRedisKV catches this) instead of hanging the
+  // request — the same "no timeout on an external call" hazard the DB layer had.
   const response = await fetch(`${config.url}/pipeline`, {
     method: "POST",
     headers: {
@@ -73,7 +76,8 @@ async function redisCommand(command: unknown[]) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify([command]),
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(3000)
   });
 
   if (!response.ok) {
