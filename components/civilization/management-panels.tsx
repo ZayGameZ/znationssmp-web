@@ -9,16 +9,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { queueClientAction } from "@/lib/queue/actions";
 import { currency } from "@/lib/utils";
-import type { Nation, Town, User } from "@/types";
+import type { Nation, Town } from "@/types";
 
-export function ManagementPanels({ user, town, nation }: { user: User; town: Town; nation: Nation }) {
+export function ManagementPanels({ town, nation }: { town: Town; nation: Nation }) {
   const [townName, setTownName] = useState(town.name);
   const [tax, setTax] = useState(String(town.taxRate));
   const [nationName, setNationName] = useState(nation.name);
   const [message, setMessage] = useState<string | null>(null);
 
   async function queue(type: string, targetType: "town" | "nation", targetId: string, payload: Record<string, string | number | boolean>) {
-    const action = await queueClientAction({ userId: user.id, type, targetType, targetId, payload });
+    const action = await queueClientAction({ type, targetType, targetId, payload });
     setMessage(`Queued ${type}: ${action.id.slice(0, 8)}`);
   }
 

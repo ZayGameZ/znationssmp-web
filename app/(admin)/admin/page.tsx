@@ -2,7 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Bell, ShieldCheck, Vote } from "lucide-react";
 import { AdminConsole } from "@/components/admin/admin-console";
-import { siteData } from "@/lib/mock-data";
+import { getAnnouncements } from "@/lib/api/adapters/announcements";
+import { getAuditLogs } from "@/lib/api/adapters/audit";
+import { getEvents } from "@/lib/api/adapters/events";
+import { getIntegrationStatuses } from "@/lib/api/adapters/integrations";
+import { getQueuedActions } from "@/lib/api/adapters/queue";
+import { getMarketItems, getProfessions } from "@/lib/api/adapters/site";
+import { withKV } from "@/lib/cache/kv";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicConfig } from "@/lib/config/site";
 
@@ -18,6 +24,16 @@ export default async function AdminPage() {
     redirect("/login?admin=login-required");
   }
   const config = getPublicConfig();
+  const [announcements, events, queuedActions, auditLogs, itemsResult, professions, integrations] = await Promise.all([
+    getAnnouncements(),
+    getEvents(),
+    getQueuedActions(),
+    getAuditLogs(),
+    withKV("cache:dynamicshop-items", getMarketItems),
+    getProfessions(),
+    getIntegrationStatuses()
+  ]);
+  const items = itemsResult.data;
 
   return (
     <div className="mx-auto max-w-[1500px] space-y-4">
@@ -36,13 +52,13 @@ export default async function AdminPage() {
           ))}
         </div>
         <AdminConsole
-          announcements={siteData.announcements}
-          events={siteData.events}
-          items={siteData.items}
-          professions={siteData.professions}
-          queuedActions={siteData.queuedActions}
-          integrations={siteData.integrations}
-          auditLogs={siteData.auditLogs}
+          announcements={announcements}
+          events={events}
+          items={items}
+          professions={professions}
+          queuedActions={queuedActions}
+          integrations={integrations}
+          auditLogs={auditLogs}
         setupWarnings={config.setupWarnings}
       />
     </div>

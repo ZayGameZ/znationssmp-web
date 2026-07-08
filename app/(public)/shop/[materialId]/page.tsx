@@ -8,15 +8,24 @@ import { withKV } from "@/lib/cache/kv";
 import { getMarketItems } from "@/lib/api/adapters/site";
 import { siteData } from "@/lib/mock-data";
 import { currency, percent, trendClass } from "@/lib/utils";
+import type { PricePoint } from "@/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+type MarketOverview = { priceSeries: PricePoint[] };
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ materialId: string }> }) {
   const { materialId } = await params;
   const items = await withKV("cache:dynamicshop-items", getMarketItems);
   const item = items.data.find((candidate) => candidate.materialId === materialId);
   if (!item) notFound();
+
+  // Same cache key /api/dynamicshop/market reads — was previously importing
+  // the static mock series directly, so it never reflected real plugin data.
+  const market = await withKV<MarketOverview>("cache:market-overview", async () => ({
+    priceSeries: siteData.priceSeries
+  }));
 
   return (
     <div className="min-h-screen bg-zn-black text-zn-parchment">
@@ -33,7 +42,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ mat
           </Card>
           <Card>
             <CardHeader><CardTitle>Price History</CardTitle><p className={`text-sm font-medium ${trendClass(item.trend)}`}>{percent(item.trend)} 24h</p></CardHeader>
-            <CardContent><MarketChart data={siteData.priceSeries} /></CardContent>
+            <CardContent><MarketChart data={market.data.priceSeries} /></CardContent>
           </Card>
         </div>
         <section className="grid gap-4 md:grid-cols-4">

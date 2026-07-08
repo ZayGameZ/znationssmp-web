@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPlayerProfile } from "@/lib/api/adapters/players";
-import { siteData } from "@/lib/mock-data";
 import { compactNumber, currency } from "@/lib/utils";
 
 export default async function PlayerProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -15,9 +14,14 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
   const result = await getPlayerProfile(decodeURIComponent(username));
   if (!result.data) notFound();
   const profile = result.data;
-  const profession = siteData.professions.find((item) => item.id === profile.professionId);
-  const town = siteData.towns.find((item) => item.id === profile.townId);
-  const nation = siteData.nations.find((item) => item.id === profile.nationId);
+  // There's no live profession/town/nation catalog yet (ZProfessions/ZInfinite
+  // Nations don't push one) — show the raw plugin-supplied id, same as the
+  // players list page, rather than resolving against a static array that's
+  // always empty in production and would silently show "No profession" for
+  // every real player.
+  const professionLabel = profile.professionId && profile.professionId !== "unassigned" ? profile.professionId : "No profession";
+  const townLabel = profile.townId || "No town";
+  const nationLabel = profile.nationId || "No nation";
 
   return (
     <div className="min-h-screen bg-zn-black text-white">
@@ -49,9 +53,9 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
           <Card>
             <CardHeader><CardTitle>Identity</CardTitle><Shield className="h-5 w-5 text-zn-gold" /></CardHeader>
             <CardContent className="space-y-3 text-sm text-zinc-300">
-              <Row label="Profession" value={profession?.name ?? "No profession"} />
-              <Row label="Town" value={town?.name ?? "No town"} />
-              <Row label="Nation" value={nation?.name ?? "No nation"} />
+              <Row label="Profession" value={professionLabel} />
+              <Row label="Town" value={townLabel} />
+              <Row label="Nation" value={nationLabel} />
               <Row label="Last Seen" value={profile.online ? "Online now" : new Date(profile.stats.lastSeenAt).toLocaleString()} />
             </CardContent>
           </Card>
