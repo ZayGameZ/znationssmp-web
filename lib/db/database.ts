@@ -55,10 +55,17 @@ function getSql(): Sql | null {
   if (!globalForDb.__znDbClient) {
     const insecure = url.includes("localhost") || url.includes("127.0.0.1") || url.includes("sslmode=disable");
     globalForDb.__znDbClient = postgres(url, {
-      // Serverless friendly: reuse a single connection per warm instance and use
-      // Supabase's transaction pooler (which does not support prepared statements).
-      max: 1,
+      // Supabase's transaction pooler (port 6543) multiplexes many client
+      // connections onto a small server pool, so opening several per warm
+      // instance is both safe and NECESSARY here. max:1 meant every concurrent
+      // request on an instance shared ONE connection — a single slow query (the
+      // admin page fans out 7 at once) head-of-line-blocked every other request
+      // site-wide, since every page reads the session from the DB. That was the
+      // "one admin click freezes all devices for minutes" bug.
+      max: 5,
       idle_timeout: 20,
+      max_lifetime: 60 * 30,
+      connect_timeout: 10,
       prepare: false,
       ssl: insecure ? false : "require"
     });
@@ -70,6 +77,21 @@ function getSql(): Sql | null {
 function toPositional(query: string): string {
   let index = 0;
   return query.replace(/\?/g, () => `$${(index += 1)}`);
+}
+
+// Hard client-side ceiling on any single query. If a query — or the pooler —
+// stalls, this rejects so withDb() degrades to its fallback instead of pinning
+// the request (and, before max was raised, the whole instance) for minutes. The
+// underlying promise's late result is swallowed so it can't surface as an
+// unhandledRejection.
+const QUERY_TIMEOUT_MS = 10_000;
+function withQueryTimeout<T>(promise: Promise<T>): Promise<T> {
+  promise.catch(() => {});
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`query exceeded ${QUERY_TIMEOUT_MS}ms`)), QUERY_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer)) as Promise<T>;
 }
 
 function makeClient(sql: Sql): DbClient {
@@ -84,15 +106,15 @@ function makeClient(sql: Sql): DbClient {
           return statement;
         },
         async first<T>() {
-          const rows = await sql.unsafe(text, params as never[]);
+          const rows = await withQueryTimeout(sql.unsafe(text, params as never[]));
           return (rows[0] as T) ?? null;
         },
         async all<T>() {
-          const rows = await sql.unsafe(text, params as never[]);
+          const rows = await withQueryTimeout(sql.unsafe(text, params as never[]));
           return { results: rows as unknown as T[], success: true };
         },
         async run() {
-          const rows = await sql.unsafe(text, params as never[]);
+          const rows = await withQueryTimeout(sql.unsafe(text, params as never[]));
           return { success: true, meta: { changes: rows.count ?? 0 } };
         }
       };
