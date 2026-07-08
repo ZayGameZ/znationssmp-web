@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { getBootstrapUsers } from "@/lib/auth/bootstrap";
 import { findUserById } from "@/lib/auth/users";
@@ -14,7 +15,14 @@ type SessionPayload = {
   expiresAt: number;
 };
 
-export async function getCurrentUser(): Promise<User | null> {
+// React.cache() de-dupes this per server request/render pass — every layout,
+// page, and nested component on a route calls getCurrentUser() independently
+// (that's the whole point: no prop-drilling the user around), but without this
+// wrapper each of those calls re-parsed the cookie, re-verified the HMAC, and
+// re-queried Postgres for the SAME user on the SAME request. A page like
+// /account or /admin — which reads it once directly and once again via the
+// shared layout — was paying for that chain twice before this existed.
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const jar = await cookies();
   const session = await readSession(jar.get(SESSION_COOKIE)?.value);
   if (!session) return null;
@@ -23,7 +31,7 @@ export async function getCurrentUser(): Promise<User | null> {
   const bootstrapUser = getBootstrapUsers().find((user) => user.id === session.userId && user.role === session.role);
   if (bootstrapUser) return bootstrapUser;
   return siteData.users.find((user) => user.id === session.userId && user.role === session.role) ?? null;
-}
+});
 
 export async function requireRole(roles: Role[]) {
   const user = await getCurrentUser();
@@ -65,9 +73,21 @@ async function readSession(value?: string): Promise<SessionPayload | null> {
   }
 }
 
+// The signing secret is a static env var for the life of the process, so the
+// derived CryptoKey is safe to import once and reuse — every readSession()
+// call (i.e. every getCurrentUser() call across every request this instance
+// serves) was previously re-running importKey from scratch.
+let hmacKeyPromise: Promise<CryptoKey> | null = null;
+function getHmacKey(): Promise<CryptoKey> {
+  if (!hmacKeyPromise) {
+    const secret = process.env.ZN_SESSION_SECRET ?? process.env.SESSION_SECRET ?? "change-this-session-secret";
+    hmacKeyPromise = crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  }
+  return hmacKeyPromise;
+}
+
 async function hmac(value: string) {
-  const secret = process.env.ZN_SESSION_SECRET ?? process.env.SESSION_SECRET ?? "change-this-session-secret";
-  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const key = await getHmacKey();
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
   return base64UrlEncode(Buffer.from(signature).toString("base64"));
 }

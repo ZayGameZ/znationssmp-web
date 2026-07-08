@@ -22,8 +22,9 @@ export function LogoutButton({ className, label = "Log Out" }: { className?: str
       // Even if the network call fails, fall through to a refresh so the UI
       // re-renders against whatever session state actually remains.
     }
+    // "/" reads cookies() via PublicNav, so it's already dynamically rendered
+    // on navigation — see login-form.tsx for why refresh() is redundant here.
     router.push("/");
-    router.refresh();
   }
 
   return (

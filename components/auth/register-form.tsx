@@ -30,8 +30,9 @@ export function RegisterForm() {
       setMessage(body.error ?? "Registration failed.");
       return;
     }
+    // See login-form.tsx — the destination route is already dynamically
+    // rendered (reads cookies()), so router.refresh() here was redundant.
     router.push("/account/link");
-    router.refresh();
   }
 
   return (

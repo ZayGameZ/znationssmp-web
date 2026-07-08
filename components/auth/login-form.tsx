@@ -30,8 +30,11 @@ export function LoginForm() {
       setError("Invalid credentials. Register a website account or use the owner bootstrap account.");
       return;
     }
+    // /dashboard reads cookies() (via getCurrentUser in its layout + page), so
+    // Next.js already renders it dynamically on navigation — router.refresh()
+    // here just forced a second, redundant full-tree re-fetch of the route
+    // we're leaving before the first one had even resolved.
     router.push("/dashboard");
-    router.refresh();
   }
 
   return (
