@@ -17,6 +17,7 @@ const INTEGRATIONS: { id: string; name: string; cacheKey: string; endpoint: stri
   { id: "dynamicshop-items", name: "DynamicShop (Items)", cacheKey: "cache:dynamicshop-items", endpoint: "/api/ingest/dynamicshop/items" },
   { id: "dynamicshop-market", name: "DynamicShop (Market)", cacheKey: "cache:market-overview", endpoint: "/api/ingest/dynamicshop/market" },
   { id: "zprofessions", name: "ZProfessions", cacheKey: "cache:zprofessions-summary", endpoint: "/api/ingest/zprofessions/summary" },
+  { id: "civilization", name: "Civilization (Towns/Nations/Wars)", cacheKey: "cache:civilization", endpoint: "/api/ingest/civilization" },
   { id: "bluemap", name: "Bluemap", cacheKey: "cache:bluemap", endpoint: "/api/ingest/bluemap" }
 ];
 

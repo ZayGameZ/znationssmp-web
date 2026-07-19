@@ -15,6 +15,7 @@ const browseNav = [
   ["Shop", "/shop"],
   ["Players", "/players"],
   ["Map", "/map"],
+  ["Civilization", "/civilization"],
   ["Professions", "/professions"],
   ["Leaderboards", "/leaderboards"],
   ["News", "/announcements"],
